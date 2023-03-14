@@ -9,8 +9,8 @@ function App() {
 
   return (
     <div className="m-2">
-     {/* <MyComponent/> */}
-     <Selects/>
+     <MyComponent/>
+     {/* <Selects/> */}
     </div>
   )
 }

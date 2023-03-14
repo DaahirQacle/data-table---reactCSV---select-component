@@ -2,10 +2,10 @@ import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { CSVLink } from 'react-csv';
 import DataTable from 'react-data-table-component';
-import { RiDownloadLine } from 'react-icons/ri'
-import Button from 'react-bootstrap/Button';
-import Spinner from 'react-bootstrap/Spinner';
+import { RiDownloadLine, RiH1 } from 'react-icons/ri'
 import Form from 'react-bootstrap/Form';
+import Loading from './Loading';
+import Selects from './Selects';
 
 
 const columns = [
@@ -35,14 +35,15 @@ const columns = [
         selector: row => row.population,
     },
     {
-        name: <h4>Numeric Code</h4>,
-        selector: row => row.numericCode,
+        name: <h4>Calling Code</h4>,
+        selector: row => row.callingCodes,
     },
     {
         name: <h4>Flag</h4>,
         selector: row => <img width={50} height={50} src={row.flag} />
     },
 ];
+
 const headers = [
     {
         label: 'Name', key: "name",
@@ -52,8 +53,9 @@ const headers = [
     { label: 'Region', key: "region", },
     { label: 'Area', key: "area", },
     { label: 'Population', key: "population", },
-    { label: 'Numeric Code', key: "numericCode", }
+    { label: 'Calling Code', key: "callingCodes", }
 ]
+
 function MyComponent() {
     const [countries, setcountries] = useState([])
     const [filtered, setFiltered] = useState([])
@@ -68,7 +70,7 @@ function MyComponent() {
             setcountries(data)
             setFiltered(data)
             setLoading(false)
-            console.log(countries)
+           
         } catch (error) {
             console.log(error);
         }
@@ -84,85 +86,82 @@ function MyComponent() {
                 || country.region.toLowerCase().match(search.toLocaleLowerCase())
         })
         setFiltered(newData)
+        console.log(filtered)
     }, [search])
-    
-    const toggleHandle = ()=>{
-        toggle? setToggle(false) :setToggle(true)
+
+    const toggleHandle = () => {
+        toggle ? setToggle(false) : setToggle(true)
 
     }
+ 
 
     return (
         <>
-        
-            {
-                loading ?
+            <DataTable
+
+                columns={columns}
+                data={filtered}
+                selectableRows
+                pagination
+                
+                fixedHeader
+                responsive
+                BuiltinStory theme={toggle?"dark":'default' }
+                progressPending={loading}
+                progressComponent={<Loading className='m-5 p-4' />}
+                subHeader
+          
+                title='List of all country'
+                actions={
                     <>
-                        <Button variant="primary" disabled className='position-absolute top-50 start-50'>
-                            <Spinner
-                                as="span"
-                                animation="border"
-                                size="sm"
-                                role="status"
-                                aria-hidden="true"
+                        <CSVLink
+                            className='btn btn-sm btn-success'
+                            data={filtered}
+                            headers={headers}
+                            filename={'Text'}
+                            target={'_blank'}
+                        >
+                            < RiDownloadLine />
+                            <span > Download</span>
+
+                        </CSVLink>
+
+
+                       
+                    </>
+
+                }
+
+                subHeaderComponent={
+                    <>
+                     <Form className='position-absolute top-5 start-0 mx-3'>
+                            <Form.Check
+                                type="switch"
+                                id="custom-switch"
+
+                                onClick={toggleHandle}
                             />
-                            Loading...
-                        </Button>
-                    </> :
-
-
-                    <DataTable
-                  
-                        columns={   columns}
-                        data=  {filtered}
-                        selectableRows
-                        pagination
-                        fixedHeader
-                        responsive
-                        // BuiltinStory theme="dark" 
-                        subHeader
-                        
-                        // title='List of All Country'
-                        actions={
-                            <>
-                        { toggle &&   <CSVLink
-                                    className='btn btn-sm btn-success'
-                                    data={filtered}
-                                    headers={headers}
-                                    filename={'Text'}
-                                    target={'_blank'}
-                                >
-                                    < RiDownloadLine />
-                                    <span > Download</span>
-
-                                </CSVLink>}
-                            
-
-                                <Form className='position-absolute top-5 start-0'>
-                                    <Form.Check
-                                        type="switch"
-                                        id="custom-switch"
-                                     
-                                        onClick={toggleHandle}
-                                    />
-                                </Form>
-                            </>
-
-                        }
-
-                        subHeaderComponent={
-                           
-                        toggle &&    <input type='text' placeholder='Search here..'
-                                className='w-25 form-control mt-2'
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                            />
-                           
-                        }
-
-
+                             
+                        </Form>
+                   
+                        <input type='text' placeholder='Search here..'
+                        className='w-25 form-control mt-2'
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
                     />
-            }
-           
+                    
+                  
+                    </>
+
+                   
+
+                }
+
+
+            />
+
+
+
 
 
         </>
